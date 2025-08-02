@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Test Database
+  test-db:
+    image: postgres:15
+    container_name: dashboard_test_db
+    environment:
+      POSTGRES_DB: dashboard_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Tests
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: dashboard_backend_test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:password@test-db:5432/dashboard_test
+      DB_HOST: test-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: dashboard_test
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      test-db:
+        condition: service_healthy
+    command: npm run test:coverage
+
+  # Frontend Tests
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: dashboard_frontend_test
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+      REACT_APP_ENVIRONMENT: test
+      CI: true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm test -- --coverage --watchAll=false
+
+volumes:
+  test_postgres_data:
+
+networks:
+  default:
+    name: dashboard_test_network

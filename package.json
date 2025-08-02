@@ -1,0 +1,39 @@
+{
+  "name": "service-business-dashboard",
+  "version": "1.0.0",
+  "description": "Multi-tenant SaaS dashboard for service businesses",
+  "scripts": {
+    "dev": "docker compose up",
+    "build": "docker compose up --build",
+    "stop": "docker compose down",
+    "logs": "docker compose logs",
+    "migrate": "docker compose exec backend npm run migrate",
+    "seed": "docker compose exec backend npm run seed",
+    "test": "docker compose -f docker-compose.test.yml up --build",
+    "test:clean": "docker compose -f docker-compose.test.yml down --volumes",
+    "test:backend": "docker compose -f docker-compose.test.yml up --build backend-test",
+    "test:frontend": "docker compose -f docker-compose.test.yml up --build frontend-test",
+    "test:local": "npm run test:local:backend && npm run test:local:frontend",
+    "test:local:backend": "cd backend && npm test",
+    "test:local:frontend": "cd frontend && npm test -- --watchAll=false",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "clean": "docker compose down -v && docker system prune -f"
+  },
+  "keywords": [
+    "saas",
+    "multi-tenant",
+    "dashboard",
+    "service-business",
+    "cleaning",
+    "landscaping",
+    "hvac"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
